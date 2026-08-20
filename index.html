@@ -30,21 +30,33 @@
             font-size: 15px;
             font-weight: 500;
             color: #333;
-            margin: 15px 0 25px 0;
+            margin: 15px 0 20px 0;
             word-break: break-all;
             line-height: 1.5;
         }
         .btn {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            color: white;
             border: none;
             padding: 14px 20px;
             border-radius: 30px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        /* 인스타그램 버튼 스타일 */
+        .btn-insta {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
             box-shadow: 0 4px 10px rgba(220, 39, 67, 0.3);
+        }
+        /* 카카오톡 버튼 스타일 */
+        .btn-kakao {
+            background-color: #FEE500;
+            color: #191919;
+            box-shadow: 0 4px 10px rgba(254, 229, 0, 0.4);
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -52,43 +64,51 @@
 
 <div class="card">
     <h2>🏃‍♂️ 춘천마라톤 X 듀오덤</h2>
-    <p>아래 버튼을 누르면 해시태그가 자동 복사되고 인스타그램으로 이동합니다.</p>
+    <p>원하시는 앱 버튼을 누르면 해시태그가 복사된 후 해당 앱으로 이동합니다.</p>
     
     <!-- 적용된 해시태그 -->
     <div class="hashtag-box" id="hashtags">
         #듀오덤 #DuoDERM #상처엔듀오덤 #춘천마라톤
     </div>
 
-    <button class="btn" onclick="copyAndOpenInsta()">해시태그 복사 후 인스타 열기</button>
+    <button class="btn btn-insta" onclick="copyAndOpen('insta')">해시태그 복사 후 인스타 스토리 업로드하기</button>
+    <button class="btn btn-kakao" onclick="copyAndOpen('kakao')">해시태그 복사 후 카카오톡 소식 업로드하기</button>
 </div>
 
 <script>
-function copyAndOpenInsta() {
+function copyAndOpen(appType) {
     const textToCopy = document.getElementById("hashtags").innerText.trim();
     
-    // 현대 클립보드 API
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(textToCopy).then(() => {
-            alert("해시태그가 복사되었습니다! 인스타그램에 붙여넣어 보세요.");
-            window.location.href = "instagram://app";
+            redirectApp(appType);
         }).catch(err => {
-            fallbackCopy(textToCopy);
+            fallbackCopy(textToCopy, appType);
         });
     } else {
-        fallbackCopy(textToCopy);
+        fallbackCopy(textToCopy, appType);
+    }
+}
+
+function redirectApp(appType) {
+    if (appType === 'insta') {
+        alert("해시태그가 복사되었습니다! 인스타그램에 붙여넣어 보세요.");
+        window.location.href = "instagram://app";
+    } else if (appType === 'kakao') {
+        alert("해시태그가 복사되었습니다! 카카오톡 소식에 붙여넣어 보세요.");
+        window.location.href = "kakaolink://launch";
     }
 }
 
 // 구형 모바일 호환용 복사 기능
-function fallbackCopy(text) {
+function fallbackCopy(text, appType) {
     const textarea = document.createElement("textarea");
     textarea.value = text;
     document.body.appendChild(textarea);
     textarea.select();
     try {
         document.execCommand("copy");
-        alert("해시태그가 복사되었습니다! 인스타그램에 붙여넣어 보세요.");
-        window.location.href = "instagram://app";
+        redirectApp(appType);
     } catch (err) {
         alert("복사에 실패했습니다. 해시태그를 직접 길게 눌러 복사해 주세요.");
     }
