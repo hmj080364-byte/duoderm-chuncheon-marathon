@@ -71,8 +71,8 @@
         #듀오덤 #DuoDERM #상처엔듀오덤 #춘천마라톤
     </div>
 
-    <button class="btn btn-insta" onclick="copyAndOpen('insta')">복사 후 인스타 열기</button>
-    <button class="btn btn-kakao" onclick="copyAndOpen('kakao')">복사 후 카카오톡 열기</button>
+    <button class="btn btn-insta" onclick="copyAndOpen('insta')">복사 후 인스타 스토리 업로드하기</button>
+    <button class="btn btn-kakao" onclick="copyAndOpen('kakao')">복사 후 카카오톡 소식 업로드하기</button>
 </div>
 
 <script>
@@ -95,7 +95,7 @@ function redirectApp(appType) {
         alert("해시태그가 복사되었습니다! 인스타그램에 붙여넣어 보세요.");
         window.location.href = "instagram://app";
     } else if (appType === 'kakao') {
-        alert("해시태그가 복사되었습니다! 카카오톡 소식/스토리에 붙여넣어 보세요.");
+        alert("해시태그가 복사되었습니다! 카카오톡 소식 붙여넣어 보세요.");
         window.location.href = "kakaolink://launch";
     }
 }
