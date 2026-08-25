@@ -71,48 +71,78 @@
         #듀오덤 #DuoDERM #상처엔듀오덤 #춘천마라톤
     </div>
 
-    <button class="btn btn-insta" onclick="copyAndOpen('insta')">복사 후 인스타 스토리 업로드하기</button>
-    <button class="btn btn-kakao" onclick="copyAndOpen('kakao')">복사 후 카카오톡 소식 업로드하기</button>
+    <button class="btn btn-insta" onclick="handleCopyAndRedirect('insta')">복사 후 인스타 스토리 업로드하기</button>
+    <button class="btn btn-kakao" onclick="handleCopyAndRedirect('kakao')">복사 후 카카오톡 소식 업로드하기</button>
 </div>
 
 <script>
-function copyAndOpen(appType) {
+async function handleCopyAndRedirect(appType) {
     const textToCopy = document.getElementById("hashtags").innerText.trim();
-    
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            redirectApp(appType);
-        }).catch(err => {
-            fallbackCopy(textToCopy, appType);
-        });
+    let copied = false;
+
+    // 1. 클립보드 복사 시도
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy);
+            copied = true;
+        } else {
+            copied = fallbackCopy(textToCopy);
+        }
+    } catch (err) {
+        copied = fallbackCopy(textToCopy);
+    }
+
+    // 2. 복사 결과 안내 및 앱 실행
+    if (copied) {
+        if (appType === 'insta') {
+            alert("해시태그가 복사되었습니다!\n인스타그램 스토리/게시물에 붙여넣어 보세요.");
+            // 인스타그램 웹/앱 호환 보편적 URL
+            window.location.href = "https://www.instagram.com/";
+        } else if (appType === 'kakao') {
+            alert("해시태그가 복사되었습니다!\n카카오톡 소식/스토리에 붙여넣어 보세요.");
+            // 카카오톡 실행 (안드로이드/iOS 호환)
+            openKakaoApp();
+        }
     } else {
-        fallbackCopy(textToCopy, appType);
+        alert("해시태그 자동 복사에 실패했습니다. 해시태그를 직접 길게 눌러 복사해 주세요.");
     }
 }
 
-function redirectApp(appType) {
-    if (appType === 'insta') {
-        alert("해시태그가 복사되었습니다! 인스타그램에 붙여넣어 보세요.");
-        window.location.href = "instagram://app";
-    } else if (appType === 'kakao') {
-        alert("해시태그가 복사되었습니다! 카카오톡 소식 붙여넣어 보세요.");
+// 카카오톡 앱 열기 (OS별 분기 처리)
+function openKakaoApp() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isAndroid = userAgent.indexOf("android") > -1;
+    const isIos = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
+
+    if (isAndroid) {
+        // 안드로이드 크롬/웨일 등 브라우저 블로킹 우회용 인텐트
+        window.location.href = "intent://launch#Intent;scheme=kakaolink;package=com.kakao.talk;end";
+    } else if (isIos) {
+        // iOS 카카오톡 실행 스킴
         window.location.href = "kakaolink://launch";
+    } else {
+        window.location.href = "https://www.kakaocorp.com/page/service/service/KakaoTalk";
     }
 }
 
-// 구형 모바일 호환용 복사 기능
-function fallbackCopy(text, appType) {
+// 구형 모바일/보안 브라우저 호환용 텍스트 복사
+function fallbackCopy(text) {
     const textarea = document.createElement("textarea");
     textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
     document.body.appendChild(textarea);
+    textarea.focus();
     textarea.select();
+    
+    let success = false;
     try {
-        document.execCommand("copy");
-        redirectApp(appType);
+        success = document.execCommand("copy");
     } catch (err) {
-        alert("복사에 실패했습니다. 해시태그를 직접 길게 눌러 복사해 주세요.");
+        success = false;
     }
     document.body.removeChild(textarea);
+    return success;
 }
 </script>
 
